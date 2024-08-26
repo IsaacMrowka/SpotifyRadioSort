@@ -1,11 +1,11 @@
 from flask import Flask, redirect, request, jsonify, session, send_from_directory
 import requests, os, datetime, urllib.parse, json
-from datetime import datetime, timedelta
-from flask_cors import CORS, cross_origin
+from datetime import datetime
+from flask_cors import CORS
 from dotenv import load_dotenv
-from sqlalchemy.orm import sessionmaker, load_only
-from sqlalchemy import asc, inspect
-from .db_operations import Track, Recommendations, TruePlaylist, FalsePlaylist, EndpointRequest, Search, engine
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy import asc
+from db_operations import Track, Recommendations, TruePlaylist, FalsePlaylist, EndpointRequest, Search, engine
 
 
 app = Flask(__name__)
