@@ -23,11 +23,6 @@ def index(filename):
         filename = "index.html"
     return send_from_directory(dist_folder,filename)
 
-'''
-@app.route('/')
-def index():
-    return "Welceom <a href='/login'>Login  spoofu </a>"
-'''
 @app.route('/refresh-token')
 def refresh_access_token():
     if 'refresh_token' not in session:

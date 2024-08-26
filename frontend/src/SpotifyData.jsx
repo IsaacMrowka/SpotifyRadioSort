@@ -3,24 +3,8 @@ import axios from 'axios';
 
 const SpotifyData = ({ userData }) => {
     const [playlistData, setPlaylistData] = useState([]);
-    const [likedData, setLikedData] = useState(null);
     const [query, setQuery] = useState('');
     const [results, setResults] = useState('');
-
-    useEffect(() => {
-        if (userData) {
-            fetchData('/api/tracks', setLikedData);
-        }
-    }, [userData]);
-
-    const fetchData = async (url, setData) => {
-        try {
-            const res = await axios.get(url, { withCredentials: true });
-            setData(res.data);
-        } catch (err) {
-            console.error(err);
-        }
-    };
 
     const sendData = async (url, data) => {
         try {
