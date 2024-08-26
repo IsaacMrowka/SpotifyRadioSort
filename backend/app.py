@@ -7,6 +7,10 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy import asc
 from db_operations import Track, Recommendations, TruePlaylist, FalsePlaylist, EndpointRequest, Search, engine
 
+#TODO: force LOGIN function for user, add loading wheel for playlist generation, fix /None, checkmark for which playlist, fix duplicate playlist
+#Either have seperate create-playlist buttons. This will cause both playlists to be generated anyways, every generation click or
+#have seperate sorting function in check-liked, checkliked function is split into -> sortLiked and sortUnliked. This will cause less /recommendations endpoint requests. 
+# ie. if only unliked playlists are sorted and generated
 
 app = Flask(__name__)
 CORS(app, origins=["http://localhost:5173"] ,supports_credentials=True)
@@ -327,7 +331,7 @@ def create_playlist():
 
     #LIKED PLAYLIST
     #create playlist and get playlist id
-    liked_playlist_body = f'{{ "name": "Favourited tracks Radio", "description": "Based on: {track_name}. Automated from website", "public": false }}'
+    liked_playlist_body = f'{{ "name": "Favourited tracks Radio", "description": "Based on: {track_name}, automated from website: spotifyradiosort.onrender.com", "public": false }}'
     liked_playlist_response = requests.post(os.getenv("API_BASE_URL") + 'users/'+user_id+'/playlists', data=liked_playlist_body, headers=headers)
     liked_playlist_json = liked_playlist_response.json()
     liked_playlist_id = liked_playlist_json.get('id')

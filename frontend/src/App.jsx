@@ -10,7 +10,7 @@ const App = () => {
     useEffect(() => {
         const fetchUserData = async () => {
             try {
-                const res = await axios.get('api/user', { withCredentials: true });
+                const res = await axios.get('/api/user', { withCredentials: true });
                 setUserData(res.data);
             }
             catch (err) { console.error('Error in aqcuiring user data', err)}

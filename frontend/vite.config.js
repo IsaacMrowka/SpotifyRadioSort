@@ -5,7 +5,7 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
   server: {
     proxy: {
-      '/api': 'https://spotifyradiosort.onrender.com/'
+      '/api': 'https://spotifyradiosort.onrender.com'
     }
   },
   plugins: [react()],
