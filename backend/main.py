@@ -5,7 +5,7 @@ from flask_cors import CORS, cross_origin
 from dotenv import load_dotenv
 from sqlalchemy.orm import sessionmaker, load_only
 from sqlalchemy import asc, inspect
-from db_operations import Track, Recommendations, TruePlaylist, FalsePlaylist, EndpointRequest, Search, engine
+from .db_operations import Track, Recommendations, TruePlaylist, FalsePlaylist, EndpointRequest, Search, engine
 
 
 app = Flask(__name__)
