@@ -39,7 +39,8 @@ const SpotifyData = ({ userData }) => {
         }
     };
 
-    const handleGeneratePlaylists = async () => {
+    const handleGeneratePlaylists = async (e) => {
+        e.preventDefault();
         try {
             await axios.get('/api/refresh', { withCredentials: true });
             const res = await axios.get('/api/create-playlist', { withCredentials: true });
