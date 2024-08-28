@@ -1,10 +1,12 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import './SpotifyData.css'; // Import your CSS file here
 
 const SpotifyData = ({ userData }) => {
     const [playlistData, setPlaylistData] = useState([]);
     const [query, setQuery] = useState('');
     const [results, setResults] = useState('');
+    const [loading, setLoading] = useState(false); // Loading state
 
     const sendData = async (url, data) => {
         try {
@@ -41,6 +43,7 @@ const SpotifyData = ({ userData }) => {
 
     const handleGeneratePlaylists = async (e) => {
         e.preventDefault();
+        setLoading(true); // Start loading
         try {
             await axios.get('/api/refresh', { withCredentials: true });
             const res = await axios.get('/api/create-playlist', { withCredentials: true });
@@ -51,6 +54,8 @@ const SpotifyData = ({ userData }) => {
             });
         } catch (err) {
             console.error('Error generating playlists:', err);
+        } finally {
+            setLoading(false); // Stop loading
         }
     };
 
@@ -70,14 +75,17 @@ const SpotifyData = ({ userData }) => {
                     type="text"
                     value={query}
                     onChange={handleSearchChange}
-                    placeholder="Search for track"
+                    placeholder="Search for a track"
                 />
                 <button type="submit">Search</button>
             </form>
-            <div>
-                <button type="button" onClick={handleGeneratePlaylists}>Generate Playlists</button>
-            {results && (
-                    <div>
+            <div className="generate-playlist-container">
+                <button type="button" onClick={handleGeneratePlaylists}>
+                    Generate Playlists
+                </button>
+                {loading && <div className="loading-wheel"></div>}
+                {results && (
+                    <div className="track-preview">
                         <iframe 
                             src={trackLink} 
                             width="100%" 
@@ -90,11 +98,11 @@ const SpotifyData = ({ userData }) => {
                     </div>           
                 )}
             </div>
-            <div className="content">
-                <div><h1> Liked Songs Only </h1></div>
-                <div className="left-container">
+            <div className="playlists">
+                <div className="playlist-container">
+                    <h2>Liked Songs Only</h2>
                     <iframe 
-                        src= {likedPlaylistLink}
+                        src={likedPlaylistLink}
                         width="100%" 
                         height="352" 
                         frameBorder="0" 
@@ -103,10 +111,10 @@ const SpotifyData = ({ userData }) => {
                         loading="lazy">
                     </iframe>
                 </div>
-                <h1> New Songs Only </h1>
-                <div className="right-container">
+                <div className="playlist-container">
+                    <h2>New Songs Only</h2>
                     <iframe 
-                        src= {newPlaylistLink}
+                        src={newPlaylistLink}
                         width="100%" 
                         height="352" 
                         frameBorder="0" 
