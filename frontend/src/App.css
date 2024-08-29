@@ -1,11 +1,9 @@
-/* General Styles */
 body {
   margin: 0;
   font-family: 'Arial', sans-serif;
-  background-color: #f5f7fa;
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.8), rgba(245, 247, 250, 0.8));
   color: #333;
 }
-
 .app-container {
   display: flex;
   flex-direction: column;
@@ -17,16 +15,17 @@ body {
   justify-content: space-between;
   align-items: center;
   padding: 20px;
-  background-color: #1db954;
-  color: white;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
+  background: rgba(255, 255, 255, 0.9);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);}
 
 .title {
-  font-size: 1.8em;
+  font-size: 1.6em;
   margin: 0;
   font-weight: bold;
   font-family: 'Arial', sans-serif;
+  color: #1db954;
+  text-align: center;
 }
 
 .user-data {
@@ -50,6 +49,7 @@ body {
   margin: 0;
   font-size: 1.2em;
   font-weight: normal;
+  color: rgb(72, 72, 72);
 }
 
 .login-button {

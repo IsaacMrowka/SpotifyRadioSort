@@ -43,7 +43,7 @@ const SpotifyData = ({ userData }) => {
 
     const handleGeneratePlaylists = async (e) => {
         e.preventDefault();
-        setLoading(true); // Start loading
+        setLoading(true);
         try {
             await axios.get('/api/refresh', { withCredentials: true });
             const res = await axios.get('/api/create-playlist', { withCredentials: true });
@@ -79,12 +79,7 @@ const SpotifyData = ({ userData }) => {
                 />
                 <button type="submit">Search</button>
             </form>
-            <div className="generate-playlist-container">
-                <button type="button" onClick={handleGeneratePlaylists}>
-                    Generate Playlists
-                </button>
-                {loading && <div className="loading-wheel"></div>}
-                {results && (
+            {results && (
                     <div className="track-preview">
                         <iframe 
                             src={trackLink} 
@@ -97,6 +92,12 @@ const SpotifyData = ({ userData }) => {
                         </iframe>
                     </div>           
                 )}
+            <div className="generate-playlist-container">
+                <button type="button" onClick={handleGeneratePlaylists}>
+                    Generate Playlists
+                </button>
+                <h4>Generated playlists will be automatically added to your Spotify</h4>
+                {loading && <div className="loading-wheel"></div>}
             </div>
             <div className="playlists">
                 <div className="playlist-container">
