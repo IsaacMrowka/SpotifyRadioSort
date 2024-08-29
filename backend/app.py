@@ -7,7 +7,7 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy import asc
 from db_operations import Track, Recommendations, TruePlaylist, FalsePlaylist, EndpointRequest, Search, engine
 
-#TODO: force LOGIN function for user, add loading wheel for playlist generation, fix /None, checkmark for which playlist, fix duplicate playlist
+#TODO: checkmark for which playlist, fix duplicate playlist
 #Either have seperate create-playlist buttons. This will cause both playlists to be generated anyways, every generation click or
 #have seperate sorting function in check-liked, checkliked function is split into -> sortLiked and sortUnliked. This will cause less /recommendations endpoint requests. 
 # ie. if only unliked playlists are sorted and generated
