@@ -21,7 +21,7 @@ const App = () => {
     }, []);
 
     const handleLogin = () => {
-        window.location.href = 'http://localhost:5000/login';
+        window.location.href = 'https://spotifyradiosort.onrender.com/login';
     };
 
     const handleFeatureClick = () => {

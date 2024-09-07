@@ -45,7 +45,7 @@ def refresh_access_token():
         session['access_token'] = new_token_info['access_token']
         session['expires_at'] = datetime.now().timestamp() + new_token_info['expires_in']
         
-        return redirect(os.getenv("http://localhost:5000/"))
+        return redirect(os.getenv("HOME_URL"))
 
 @app.route('/login')
 def login():
@@ -86,7 +86,7 @@ def callback():
         session['refresh_token'] = token_info.get('refresh_token')
         session['expires_at'] = datetime.now().timestamp() + token_info.get('expires_in', 3600)
 
-        return redirect(os.getenv("http://localhost:5000/"))
+        return redirect(os.getenv("HOME_URL"))
 
 def tokencheck():
     if 'access_token' not in session:
