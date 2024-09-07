@@ -7,10 +7,7 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy import asc
 from db_operations import Track, Recommendations, TruePlaylist, FalsePlaylist, EndpointRequest, Search, engine
 
-#TODO: checkmark for which playlist, fix duplicate playlist
-#Either have seperate create-playlist buttons. This will cause both playlists to be generated anyways, every generation click or
-#have seperate sorting function in check-liked, checkliked function is split into -> sortLiked and sortUnliked. This will cause less /recommendations endpoint requests. 
-# ie. if only unliked playlists are sorted and generated
+#TODO: fix duplicate playlist
 
 app = Flask(__name__)
 CORS(app, origins=["http://localhost:5173"] ,supports_credentials=True)
@@ -181,17 +178,13 @@ def get_liked_tracks():
 
 ## below is functionality for creating a palylist based on a single songs recommendations that are in the liked playlist ##
 
-@app.route('/api/refresh')
 def refresh_database():
     DBsession.query(TruePlaylist).delete()
     DBsession.query(FalsePlaylist).delete()
     DBsession.query(EndpointRequest).delete()
-    DBsession.query(Recommendations).delete()
-
     DBsession.commit()
-    return redirect('/api/recommendations')
+    return None
 
-@app.route('/api/recommendations')
 def get_recommendations():
     tokencheck()
     #endpoint to get track recommendations songs
@@ -246,15 +239,19 @@ def get_recommendations():
         return {"error database in /recommendations": str(e)}, 500
     finally:
         DBsession.close()
-    return redirect('/api/check-liked')  
+        return None
 #this database matches spotify response json
 
-@app.route('/api/check-liked')
-def get_liked_recommendations():
+@app.route('/api/get-liked')
+def get_liked():
+    refresh_database()
+    get_recommendations()
     tokencheck()
+    DBsession.query(EndpointRequest).delete()
     headers = {
     'Authorization': f"Bearer {session['access_token']}"
     }
+
     request_counter = DBsession.query(EndpointRequest).count()
     while request_counter <= 5:
         print ("request counter: ", request_counter)
@@ -281,8 +278,6 @@ def get_liked_recommendations():
         if true_index == []:
             #all recommendations returned false for liked
             print("No liked songs in recommendations pull")
-
-        #find the corresponding indeces in the recommendations data
         new_name_list = [str(recommendation.name) for recommendation in recommendations_name]
         for j, track in enumerate(track_id_list):
             if j in true_index and j<100:
@@ -292,14 +287,59 @@ def get_liked_recommendations():
                 else:
                     true_tracks = TruePlaylist(id=track_id_list[j-1], name=new_name_list[j-1])
                     DBsession.add(true_tracks)
-            else:
+            DBsession.commit()
+        request_counter = request_counter + 1
+        index_counter = EndpointRequest(index=request_counter)
+        DBsession.add(index_counter)
+        DBsession.commit()
+        return redirect('/api/recommendations')
+    return redirect('/api/create-liked-playlist')
+
+@app.route('/api/get-unliked')
+def get_false():
+    refresh_database()
+    get_recommendations()
+    tokencheck()
+    headers = {
+    'Authorization': f"Bearer {session['access_token']}"
+    }
+    request_counter = DBsession.query(EndpointRequest).count()
+    while request_counter <= 5:
+        print ("request counter: ", request_counter)
+
+        #query and save the recommendations table
+        recommendations_id = DBsession.query(Recommendations.id).order_by(asc(Recommendations.index)).limit(100).all()
+        recommendations_name = DBsession.query(Recommendations.name).order_by(asc(Recommendations.index)).limit(100).all()
+        track_id_list = [str(recommendation.id) for recommendation in recommendations_id]
+        track_id_join = ','.join(track_id_list)
+        
+        #get the saved/liked tracks playlist
+        response = requests.get(os.getenv("API_BASE_URL") + 'me/tracks/contains?ids='+track_id_join, headers=headers)
+        liked_tracks_json = response.json()
+        print(liked_tracks_json)
+        #index the 'true' bool from the json data
+        liked_track_string = json.dumps(liked_tracks_json)
+        split_string = liked_track_string.split()
+        false_index=[]
+
+        for i, string in enumerate(split_string):
+            if 'false' in string:
+                false_index.append(i+1)
+
+        if false_index == []:
+            #all recommendations returned false for liked
+            print("No liked songs in recommendations pull")
+
+        #find the corresponding indeces in the recommendations data
+        new_name_list = [str(recommendation.name) for recommendation in recommendations_name]
+        for j, track in enumerate(track_id_list):
+            if j in false_index and j<100:
                 existing_track = DBsession.query(FalsePlaylist).filter(FalsePlaylist.id == track_id_list[j-1]).first()
                 if existing_track:
                     existing_track.name = new_name_list[j-1]
                 else:
                     false_tracks = FalsePlaylist(id=track_id_list[j-1], name=new_name_list[j-1])
                     DBsession.add(false_tracks)
-
             DBsession.commit()
 
         request_counter = request_counter + 1
@@ -307,10 +347,10 @@ def get_liked_recommendations():
         DBsession.add(index_counter)
         DBsession.commit()
         return redirect('/api/recommendations')
-    return redirect('/api/create-playlist')
+    return redirect('/api/create-false-playlist')
 
-@app.route('/api/create-playlist')
-def create_playlist():
+@app.route('/api/create-liked-playlist')
+def createo_liked_playlist():
     tokencheck()
     headers = {
     'Authorization': f"Bearer {session['access_token']}"
@@ -345,8 +385,29 @@ def create_playlist():
 
     liked_add_tracks_body = json.dumps({ "uris": liked_track_id_list })
     liked_response = requests.post(os.getenv("API_BASE_URL") + 'playlists/'+liked_playlist_id+'/tracks', data=liked_add_tracks_body, headers=headers)
-    
-    #NEW PLAYLIST
+
+    playlist_ids = [liked_playlist_id] 
+    return jsonify(playlist_ids)
+
+@app.route('/api/create-unliked-playlist')
+def create_unliked_playlist():
+    tokencheck()
+    headers = {
+    'Authorization': f"Bearer {session['access_token']}"
+    }
+    searched_track = DBsession.query(Search.id).first()
+    searched_str = searched_track[0]
+    searched_str = str(searched_str)
+
+    track_response = requests.get(os.getenv("API_BASE_URL") + f'tracks/{searched_track.id}', headers=headers)
+    track_data = track_response.json()
+    track_name = track_data.get("name")
+    #get user id for creating playlist
+    user_response = requests.get(os.getenv("API_BASE_URL") + 'me', headers=headers)
+    user_json = user_response.json()
+    user_id = None
+    user_id = user_json.get('id')
+   #NEW PLAYLIST
     new_playlist_body = f'{{ "name": "New tracks Radio", "description": "Based on: {track_name}. Automated from website", "public": false }}'
     new_playlist_response = requests.post(os.getenv("API_BASE_URL") + 'users/'+user_id+'/playlists', data=new_playlist_body, headers=headers)
     new_playlist_json = new_playlist_response.json()
@@ -362,8 +423,7 @@ def create_playlist():
     add_tracks_body = json.dumps({ "uris": new_track_id_list })
     new_response = requests.post(os.getenv("API_BASE_URL") + 'playlists/'+new_playlist_id+'/tracks', data=add_tracks_body, headers=headers)
 
-
-    playlist_ids = [liked_playlist_id, new_playlist_id] 
+    playlist_ids = [new_playlist_id] 
     return jsonify(playlist_ids)
 
 if __name__ == '__main__':
