@@ -350,7 +350,7 @@ def get_false():
     return redirect('/api/create-false-playlist')
 
 @app.route('/api/create-liked-playlist')
-def createo_liked_playlist():
+def create_liked_playlist():
     tokencheck()
     headers = {
     'Authorization': f"Bearer {session['access_token']}"
