@@ -382,7 +382,7 @@ def create_liked_playlist():
 
     #LIKED PLAYLIST
     #create playlist and get playlist id
-    liked_playlist_body = f'{{ "name": "Favourited tracks Radio", "description": "Based on: {track_name}, automated from website: spotifyradiosort.onrender.com", "public": false }}'
+    liked_playlist_body = f'{{ "name": "Favourited tracks Radio", "description": "Based on: {track_name}, automated from spotifyradiosort.onrender.com", "public": false }}'
     liked_playlist_response = requests.post(os.getenv("API_BASE_URL") + 'users/'+user_id+'/playlists', data=liked_playlist_body, headers=headers)
     liked_playlist_json = liked_playlist_response.json()
     liked_playlist_id = liked_playlist_json.get('id')
@@ -419,7 +419,7 @@ def create_unliked_playlist():
     user_id = None
     user_id = user_json.get('id')
    #NEW PLAYLIST
-    new_playlist_body = f'{{ "name": "New tracks Radio", "description": "Based on: {track_name}. Automated from website", "public": false }}'
+    new_playlist_body = f'{{ "name": "New tracks Radio", "description": "Based on: {track_name}, automated from spotifyradiosort.onrender.com", "public": false }}'
     new_playlist_response = requests.post(os.getenv("API_BASE_URL") + 'users/'+user_id+'/playlists', data=new_playlist_body, headers=headers)
     new_playlist_json = new_playlist_response.json()
     new_playlist_id = new_playlist_json.get('id')
