@@ -45,7 +45,7 @@ def refresh_access_token():
         session['access_token'] = new_token_info['access_token']
         session['expires_at'] = datetime.now().timestamp() + new_token_info['expires_in']
         
-        return redirect(os.getenv("HOME_URL"))
+        return redirect(os.getenv("http://localhost:5000/"))
 
 @app.route('/login')
 def login():
@@ -86,7 +86,7 @@ def callback():
         session['refresh_token'] = token_info.get('refresh_token')
         session['expires_at'] = datetime.now().timestamp() + token_info.get('expires_in', 3600)
 
-        return redirect(os.getenv("HOME_URL"))
+        return redirect(os.getenv("http://localhost:5000/"))
 
 def tokencheck():
     if 'access_token' not in session:
@@ -178,15 +178,31 @@ def get_liked_tracks():
     return response.json()
 
 ## below is functionality for creating a palylist based on a single songs recommendations that are in the liked playlist ##
-
-def refresh_database():
+@app.route('/api/refresh-liked-database')
+def refresh_liked_database():
     DBsession.query(TruePlaylist).delete()
+    DBsession.query(EndpointRequest).delete()
+    DBsession.commit()
+    return redirect(('/api/get-liked-recommendations'))
+
+@app.route('/api/refresh-unliked-database')
+def refresh_false_database():
     DBsession.query(FalsePlaylist).delete()
     DBsession.query(EndpointRequest).delete()
     DBsession.commit()
-    return None
+    return redirect(('/api/get-unliked-recommendations'))
 
-def get_recommendations():
+@app.route('/api/get-liked-recommendations')
+def get_liked_recommendations():
+    recommendations()
+    return(redirect('/api/get-liked'))
+
+@app.route('/api/get-unliked-recommendations')
+def get_unliked_recommendations():
+    recommendations()
+    return(redirect('/api/get-unliked'))
+
+def recommendations():
     tokencheck()
     #endpoint to get track recommendations songs
     headers = {
@@ -245,14 +261,10 @@ def get_recommendations():
 
 @app.route('/api/get-liked')
 def get_liked():
-    refresh_database()
-    get_recommendations()
     tokencheck()
-    DBsession.query(EndpointRequest).delete()
     headers = {
     'Authorization': f"Bearer {session['access_token']}"
     }
-
     request_counter = DBsession.query(EndpointRequest).count()
     while request_counter <= 5:
         print ("request counter: ", request_counter)
@@ -293,19 +305,17 @@ def get_liked():
         index_counter = EndpointRequest(index=request_counter)
         DBsession.add(index_counter)
         DBsession.commit()
-        return redirect('/api/recommendations')
+        return redirect('/api/get-liked-recommendations')
     return redirect('/api/create-liked-playlist')
 
 @app.route('/api/get-unliked')
 def get_false():
-    refresh_database()
-    get_recommendations()
     tokencheck()
     headers = {
     'Authorization': f"Bearer {session['access_token']}"
     }
     request_counter = DBsession.query(EndpointRequest).count()
-    while request_counter <= 5:
+    while request_counter <= 2:
         print ("request counter: ", request_counter)
 
         #query and save the recommendations table
@@ -347,8 +357,8 @@ def get_false():
         index_counter = EndpointRequest(index=request_counter)
         DBsession.add(index_counter)
         DBsession.commit()
-        return redirect('/api/recommendations')
-    return redirect('/api/create-false-playlist')
+        return redirect('/api/get-unliked-recommendations')
+    return redirect('/api/create-unliked-playlist')
 
 @app.route('/api/create-liked-playlist')
 def create_liked_playlist():

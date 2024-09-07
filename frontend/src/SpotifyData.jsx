@@ -47,7 +47,7 @@ const SpotifyData = ({ userData }) => {
         e.preventDefault();
         setLoading(true);
         try {
-            const res = await axios.get('/api/create-liked-playlist', { withCredentials: true });
+            const res = await axios.get('/api/refresh-liked-database', { withCredentials: true });
             console.log('Liked playlist generated:', res.data);
             setLikedPlaylistData({
                 liked_playlist_id: res.data[0]
@@ -64,7 +64,7 @@ const SpotifyData = ({ userData }) => {
         e.preventDefault();
         setLoading(true);
         try {
-            const res = await axios.get('/api/create-unliked-playlist', { withCredentials: true });
+            const res = await axios.get('/api/refresh-unliked-database', { withCredentials: true });
             console.log('Unliked playlist generated:', res.data);
             setUnlikedPlaylistData({
                 unliked_playlist_id: res.data[0],
