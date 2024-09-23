@@ -1,4 +1,4 @@
-tl;dr: Appilcation that seperates Liked and Unliked tracks for a specific song on spotify, which then is added to your account as two unique playlists
+tl;dr: Application that separates Liked and Unliked tracks for a specific song on Spotify, which then is added to your account as two unique playlists
 
 Showcase: https://youtu.be/zOzvGedv26o
 
